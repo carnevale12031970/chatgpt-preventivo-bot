@@ -1,6 +1,8 @@
 name: Rispondi a richiesta preventivo
 
 on:
+permissions:
+  contents: write
   workflow_dispatch:
 
 jobs:
