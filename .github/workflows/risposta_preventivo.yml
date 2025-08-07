@@ -10,3 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Workflow attivo!"
+      - name: Commit e push risposta
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add risposte/risposta-preventivo.md
+          git commit -m "Risposta generata da ChatGPT"
+          git push
