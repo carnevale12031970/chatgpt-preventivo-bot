@@ -1,0 +1,47 @@
+name: Rispondi a richiesta preventivo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  risposta-preventivo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Leggi contenuto email
+        id: read_email
+        run: |
+          contenuto_email=$(cat email.txt)
+          echo "email_content<<EOF" >> $GITHUB_ENV
+          echo "$contenuto_email" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Chiamata a ChatGPT (OpenAI API)
+        run: |
+          echo "Invio contenuto a ChatGPT..."
+          curl https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model\": \"gpt-4\",
+              \"messages\": [
+                {\"role\": \"system\", \"content\": \"Sei un assistente commerciale. Scrivi risposte formali e professionali a richieste di preventivo.\"},
+                {\"role\": \"user\", \"content\": \"${{ env.email_content }}\"}
+              ]
+            }" > response.json
+
+      - name: Estrai risposta da JSON
+        run: |
+          risposta=$(jq -r '.choices[0].message.content' response.json)
+          echo "$risposta" > risposte/risposta-preventivo.md
+
+      - name: Commit e push risposta
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add risposte/risposta-preventivo.md
+          git commit -m "Risposta generata da ChatGPT"
+          git push
