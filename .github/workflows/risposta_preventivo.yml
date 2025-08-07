@@ -1,0 +1,10 @@
+name: Rispondi a richiesta preventivo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  esempio:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow attivo!"
